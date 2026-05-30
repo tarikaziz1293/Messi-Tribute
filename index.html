@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LM10 — Lionel Messi · The GOAT</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9A84C;--gold2:#F0C96B;--gold3:#fff4d6;
+  --black:#060606;--d1:#0d0d0d;--d2:#141414;--d3:#1c1c1c;
+  --white:#f5f0e8;--gray:#888;
+  --arg-blue:#74ACDF;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:'Inter',sans-serif;overflow-x:hidden;cursor:none}
+
+/* ── CURSOR ── */
+#cur,#curf{position:fixed;border-radius:50%;pointer-events:none;z-index:99999;top:0;left:0}
+#cur{width:10px;height:10px;background:var(--gold);transform:translate(-50%,-50%);mix-blend-mode:difference}
+#curf{width:38px;height:38px;border:1px solid rgba(201,168,76,.45);transform:translate(-50%,-50%);transition:all .35s cubic-bezier(.16,1,.3,1)}
+
+/* ── PARTICLE CANVAS ── */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:1}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:18px 60px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(6,6,6,.95),transparent)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:8px;color:var(--gold);text-decoration:none}
+.nav-links{display:flex;gap:34px;list-style:none}
+.nav-links a{color:rgba(245,240,232,.5);text-decoration:none;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;transition:color .3s;font-weight:500}
+.nav-links a:hover{color:var(--gold)}
+
+/* ── HERO ── */
+#hero{height:100vh;position:relative;display:flex;align-items:flex-end;overflow:hidden}
+
+/* Animated BG image */
+.hero-bg-img{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/800px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg');
+  background-size:cover;background-position:center top;
+  filter:brightness(.28) saturate(1.2);
+  animation:bgPulse 8s ease-in-out infinite;
+}
+@keyframes bgPulse{0%,100%{transform:scale(1);filter:brightness(.28) saturate(1.2)}50%{transform:scale(1.04);filter:brightness(.32) saturate(1.4)}}
+
+.hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(135deg,rgba(6,6,6,.92) 0%,rgba(6,6,6,.4) 60%,rgba(0,0,0,.1) 100%)}
+.hero-gold-glow{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse 55% 70% at 70% 50%,rgba(201,168,76,.09) 0%,transparent 70%)}
+
+/* Big 10 */
+.hero-num{
+  position:absolute;right:-30px;top:50%;transform:translateY(-50%);
+  font-family:'Bebas Neue',sans-serif;font-size:min(420px,44vw);
+  color:rgba(201,168,76,.05);line-height:1;z-index:2;pointer-events:none;
+  animation:numFloat 6s ease-in-out infinite;
+}
+@keyframes numFloat{0%,100%{transform:translateY(-50%) translateX(0)}50%{transform:translateY(-52%) translateX(-10px)}}
+
+.hero-content{position:relative;z-index:3;padding:0 60px 90px;max-width:720px}
+.hero-eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;opacity:0;animation:fadeUp .9s .3s forwards}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(80px,11vw,155px);line-height:.88;letter-spacing:2px;margin-bottom:22px;opacity:0;animation:fadeUp .9s .5s forwards}
+.hero-title em{color:var(--gold);font-style:normal}
+.hero-sub{font-family:'Playfair Display',serif;font-style:italic;font-size:19px;color:rgba(245,240,232,.5);margin-bottom:44px;opacity:0;animation:fadeUp .9s .7s forwards}
+.hero-stats{display:flex;gap:38px;opacity:0;animation:fadeUp .9s .9s forwards}
+.hs-num{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--gold);line-height:1;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hs-lbl{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gray);margin-top:4px}
+.scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:3;opacity:0;animation:fadeUp .9s 1.2s forwards}
+.scroll-line{width:1px;height:55px;background:linear-gradient(to bottom,var(--gold),transparent);animation:linePulse 2s infinite}
+.scroll-txt{font-size:8px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)}
+@keyframes linePulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* Floating sparkles */
+.sparkle{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:0;pointer-events:none;z-index:2}
+@keyframes sparkleAnim{0%{opacity:0;transform:translateY(0) scale(0)}40%{opacity:.9;transform:translateY(-60px) scale(1)}100%{opacity:0;transform:translateY(-120px) scale(.3)}}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTIONS ── */
+section{padding:120px 60px}
+.sec-lbl{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(50px,7vw,105px);line-height:.92;letter-spacing:1px;margin-bottom:56px}
+.shimmer{background:linear-gradient(90deg,var(--gold) 20%,var(--gold2) 50%,var(--gold) 80%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite}
+@keyframes shimmer{to{background-position:-200% center}}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .85s ease,transform .85s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-l{opacity:0;transform:translateX(-36px);transition:opacity .85s ease,transform .85s ease}
+.reveal-l.vis{opacity:1;transform:translateX(0)}
+.reveal-r{opacity:0;transform:translateX(36px);transition:opacity .85s ease,transform .85s ease}
+.reveal-r.vis{opacity:1;transform:translateX(0)}
+
+/* ── STATS ── */
+#stats{background:var(--d1);position:relative;overflow:hidden}
+#stats::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.05),transparent 70%);pointer-events:none}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:2px}
+.scard{background:var(--d2);padding:38px 28px;position:relative;overflow:hidden;transition:background .3s,transform .3s}
+.scard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .4s ease}
+.scard:hover::after{transform:scaleX(1)}
+.scard:hover{background:var(--d3);transform:translateY(-4px)}
+.sval{font-family:'Bebas Neue',sans-serif;font-size:66px;line-height:1;margin-bottom:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sname{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:8px}
+.sdesc{font-size:12px;color:rgba(245,240,232,.4);line-height:1.65}
+
+/* Timeline */
+.timeline{margin-top:80px;padding-left:24px;position:relative}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--gold) 0%,transparent 100%)}
+.ti{position:relative;padding:0 0 50px 44px}
+.ti::before{content:'';position:absolute;left:-6px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 16px rgba(201,168,76,.7);animation:dotPulse 2s infinite}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 8px rgba(201,168,76,.5)}50%{box-shadow:0 0 22px rgba(201,168,76,.9)}}
+.ti-yr{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;color:var(--gold);margin-bottom:5px}
+.ti-club{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;margin-bottom:8px}
+.ti-desc{font-size:13px;color:rgba(245,240,232,.5);line-height:1.75;max-width:620px}
+
+/* ── QUOTES ── */
+#quotes{background:var(--black);position:relative;overflow:hidden}
+#quotes::before{content:'"';position:absolute;font-family:'Playfair Display',serif;font-size:700px;color:rgba(201,168,76,.025);top:-150px;left:-80px;line-height:1;pointer-events:none}
+.q-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:2px}
+.qcard{padding:46px 38px;background:var(--d2);border-left:3px solid transparent;transition:border-color .35s,transform .35s,background .3s}
+.qcard:hover{border-left-color:var(--gold);transform:translateX(7px);background:var(--d3)}
+.qtext{font-family:'Playfair Display',serif;font-style:italic;font-size:17px;line-height:1.85;color:var(--white);margin-bottom:22px}
+.qauth{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.qrole{font-size:11px;color:var(--gray);margin-top:4px}
+.stars{color:var(--gold);font-size:12px;margin-bottom:12px;letter-spacing:2px}
+
+/* ── GALLERY ── */
+#gallery{background:var(--d1)}
+.g-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.gi{overflow:hidden;position:relative;background:var(--d3)}
+.gi:nth-child(1){grid-column:span 5;grid-row:span 2}
+.gi:nth-child(2){grid-column:span 4}
+.gi:nth-child(3){grid-column:span 3}
+.gi:nth-child(4){grid-column:span 4}
+.gi:nth-child(5){grid-column:span 3}
+.gi:nth-child(6){grid-column:span 4;grid-row:span 2}
+.gi:nth-child(7){grid-column:span 4;grid-row:span 2}
+.gi:nth-child(8){grid-column:span 4;grid-row:span 2}
+.gi img{width:100%;height:100%;min-height:230px;object-fit:cover;filter:saturate(.75) brightness(.9);transition:transform .65s cubic-bezier(.16,1,.3,1),filter .65s;display:block}
+.gi:hover img{transform:scale(1.07);filter:saturate(1.3) brightness(1)}
+.gi-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75),transparent 55%);opacity:0;transition:opacity .4s;display:flex;align-items:flex-end;padding:18px}
+.gi:hover .gi-ov{opacity:1}
+.gi-cap{font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+
+/* Wallpapers */
+.wp-sec-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--gold);border-top:1px solid rgba(201,168,76,.25);padding-top:20px;margin:44px 0 18px;text-transform:uppercase}
+.wp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:4px}
+.wi{position:relative;overflow:hidden;background:var(--d3);cursor:pointer}
+.wi img{width:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.16,1,.3,1),filter .6s;filter:saturate(.8)}
+.wi:hover img{transform:scale(1.06);filter:saturate(1.3)}
+.wi-tag{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.75);border:1px solid var(--gold);color:var(--gold);font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;backdrop-filter:blur(6px)}
+.wi-dl{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.88);padding:13px;text-align:center;font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;transform:translateY(100%);transition:transform .3s;text-decoration:none;display:block}
+.wi:hover .wi-dl{transform:translateY(0)}
+
+/* ── VIDEOS ── */
+#videos{background:var(--black)}
+.vid-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
+.vcard{background:var(--d2);overflow:hidden;transition:transform .35s,box-shadow .35s}
+.vcard:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(201,168,76,.1)}
+.vcard iframe{width:100%;aspect-ratio:16/9;display:block;border:none}
+.vinfo{padding:20px}
+.vtag{font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:7px}
+.vtitle{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;line-height:1.2}
+
+/* ── AWARDS ── */
+#awards{background:var(--d1)}
+.award-tabs{display:flex;border-bottom:1px solid rgba(201,168,76,.2);margin-bottom:48px}
+.atab{padding:14px 30px;background:none;border:none;color:var(--gray);font-family:'Inter',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;position:relative;transition:color .3s}
+.atab::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .3s}
+.atab.on{color:var(--gold)}
+.atab.on::after{transform:scaleX(1)}
+.apanel{display:none}
+.apanel.on{display:block}
+.acat{margin-bottom:55px}
+.acat-title{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:5px;color:var(--gold);margin-bottom:22px;padding-bottom:10px;border-bottom:1px solid rgba(201,168,76,.12);text-transform:uppercase}
+.alist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:2px}
+.ai{display:flex;align-items:center;gap:15px;padding:18px 20px;background:var(--d2);transition:background .3s,transform .3s}
+.ai:hover{background:var(--d3);transform:translateX(4px)}
+.ai-ico{font-size:22px;flex-shrink:0}
+.ai-name{font-size:13px;font-weight:600;margin-bottom:3px;color:var(--white)}
+.ai-yr{font-size:11px;color:var(--gold);letter-spacing:1px}
+.ai-cnt{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:32px;color:rgba(201,168,76,.3)}
+
+/* ── GOALS ── */
+#goals{background:var(--black)}
+.gf{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:4px}
+.gcard{background:var(--d2);overflow:hidden;transition:transform .35s}
+.gcard:hover{transform:scale(1.01)}
+.gcard iframe{width:100%;aspect-ratio:16/9;display:block;border:none}
+.ginfo{padding:22px}
+.g-rank{font-family:'Bebas Neue',sans-serif;font-size:64px;color:rgba(201,168,76,.12);line-height:.9;float:right;margin-left:16px}
+.g-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:6px}
+.g-desc{font-size:13px;color:rgba(245,240,232,.45);line-height:1.7}
+.grow{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+
+/* ── ARG STRIPE ── */
+.arg-stripe{height:5px;background:linear-gradient(to right,var(--arg-blue) 0%,var(--arg-blue) 33%,#fff 33%,#fff 67%,var(--arg-blue) 67%,var(--arg-blue) 100%)}
+
+/* ── FOOTER ── */
+footer{background:var(--d2);padding:70px 60px;text-align:center;border-top:1px solid rgba(201,168,76,.12)}
+.ft-name{font-family:'Bebas Neue',sans-serif;font-size:90px;letter-spacing:10px;background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite;line-height:1;margin-bottom:14px}
+.ft-tag{font-family:'Playfair Display',serif;font-style:italic;font-size:17px;color:rgba(245,240,232,.38);margin-bottom:36px}
+.ft-flag{font-size:36px;margin-bottom:22px}
+.ft-copy{font-size:10px;letter-spacing:2px;color:rgba(245,240,232,.18)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:14px 18px}
+  .nav-links{display:none}
+  section{padding:70px 18px}
+  .hero-content{padding:0 18px 70px}
+  .hero-title{font-size:76px}
+  .hero-bg-img{background-position:70% top}
+  .gi:nth-child(1){grid-column:span 12}
+  .gi:nth-child(2),.gi:nth-child(3){grid-column:span 6}
+  .gi:nth-child(4),.gi:nth-child(5){grid-column:span 6}
+  .gi:nth-child(6),.gi:nth-child(7),.gi:nth-child(8){grid-column:span 12}
+  .gf{grid-template-columns:1fr}
+  .grow{grid-template-columns:1fr}
+  footer{padding:44px 18px}
+  .ft-name{font-size:54px}
+}
+
+/* ── COUNT-UP ANIMATION ── */
+@keyframes countUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── GLITCH ── */
+.glitch{position:relative}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;opacity:.06}
+.glitch::before{color:#74ACDF;clip-path:polygon(0 30%,100% 30%,100% 50%,0 50%);animation:glitch1 4s infinite}
+.glitch::after{color:var(--gold);clip-path:polygon(0 60%,100% 60%,100% 75%,0 75%);animation:glitch2 4s infinite}
+@keyframes glitch1{0%,90%,100%{transform:none}92%{transform:translate(-3px,1px)}94%{transform:translate(3px,-1px)}96%{transform:none}}
+@keyframes glitch2{0%,88%,100%{transform:none}90%{transform:translate(3px,2px)}92%{transform:translate(-3px,-2px)}94%{transform:none}}
+</style>
+
+<style>
+.gi img,.wi img{
+  image-rendering:auto;
+}
+.vcard iframe,.gcard iframe{
+  border-radius:14px;
+}
+.hero-bg-img::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.65),transparent);
+}
+</style>
+
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="curf"></div>
+
+<!-- PARTICLES -->
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="logo">LM10</a>
+  <ul class="nav-links">
+    <li><a href="#stats">Stats</a></li>
+    <li><a href="#quotes">Quotes</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#awards">Awards</a></li>
+    <li><a href="#goals">Goals</a></li>
+  </ul>
+</nav>
+
+<!-- ████████  HERO  ████████ -->
+<section id="hero">
+  <div class="hero-bg-img"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-gold-glow"></div>
+  <div class="hero-num">10</div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Born June 24, 1987 · Rosario, Argentina · #LM10</div>
+    <h1 class="hero-title glitch" data-text="LIONEL MESSI">
+      LIONEL<br><em>MESSI</em>
+    </h1>
+    <p class="hero-sub">The Greatest Football Player of All Time</p>
+    <div class="hero-stats">
+      <div><div class="hs-num" data-count="8">0</div><div class="hs-lbl">Ballon d'Or</div></div>
+      <div><div class="hs-num" data-count="821">0</div><div class="hs-lbl">Career Goals</div></div>
+      <div><div class="hs-num" data-count="1">0</div><div class="hs-lbl">World Cup</div></div>
+      <div><div class="hs-num" data-count="45">0</div><div class="hs-lbl">Major Titles</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span class="scroll-txt">Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ████████  STATS  ████████ -->
+<section id="stats">
+  <div class="reveal">
+    <div class="sec-lbl">By The Numbers</div>
+    <h2 class="sec-title">Career<br><span class="shimmer">Statistics</span></h2>
+  </div>
+  <div class="stats-grid reveal">
+    <div class="scard">
+      <div class="sval">821</div>
+      <div class="sname">Career Goals</div>
+      <div class="sdesc">Club + International — the most ever for one player in football history</div>
+    </div>
+    <div class="scard">
+      <div class="sval">380+</div>
+      <div class="sname">Career Assists</div>
+      <div class="sdesc">All-time La Liga & Champions League assist record holder</div>
+    </div>
+    <div class="scard">
+      <div class="sval">474</div>
+      <div class="sname">La Liga Goals</div>
+      <div class="sdesc">In 520 appearances for FC Barcelona — La Liga's all-time record</div>
+    </div>
+    <div class="scard">
+      <div class="sval">129</div>
+      <div class="sname">Argentina Goals</div>
+      <div class="sdesc">National team all-time record, surpassing Gabriel Batistuta's 54</div>
+    </div>
+    <div class="scard">
+      <div class="sval">91</div>
+      <div class="sname">Goals in 2012</div>
+      <div class="sdesc">World record in a single calendar year — set December 21, 2012</div>
+    </div>
+    <div class="scard">
+      <div class="sval">45</div>
+      <div class="sname">Major Trophies</div>
+      <div class="sdesc">Club + International titles — 4 UCL, 10 La Liga, World Cup & more</div>
+    </div>
+    <div class="scard">
+      <div class="sval">57+</div>
+      <div class="sname">Hat-Tricks</div>
+      <div class="sdesc">Official hat-tricks in professional football — a world record</div>
+    </div>
+    <div class="scard">
+      <div class="sval">8</div>
+      <div class="sname">Ballon d'Or</div>
+      <div class="sdesc">2009 · 2010 · 2011 · 2012 · 2015 · 2019 · 2021 · 2023 — unmatched</div>
+    </div>
+  </div>
+
+  <div class="reveal" style="margin-top:80px">
+    <div class="sec-lbl">Career Journey</div>
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,68px);letter-spacing:2px;margin-bottom:50px">Club <span class="shimmer">Timeline</span></h3>
+    <div class="timeline">
+      <div class="ti reveal-l">
+        <div class="ti-yr">2004 — 2021</div>
+        <div class="ti-club">🔵🔴 FC Barcelona</div>
+        <div class="ti-desc">Debuted Oct 16, 2004 at 17. Won 35 trophies — 10 La Liga titles, 4 UEFA Champions Leagues, 7 Copa del Rey. Scored 672 goals in 778 appearances. Barcelona's all-time top scorer by massive distance. Named greatest player in Barça history.</div>
+      </div>
+      <div class="ti reveal-l">
+        <div class="ti-yr">2021 — 2023</div>
+        <div class="ti-club">🔴🔵 Paris Saint-Germain</div>
+        <div class="ti-desc">Joined PSG after Barcelona's financial collapse. Won Ligue 1 in 2021-22. Formed a historic trio with Neymar & Mbappé. Used Paris to prepare for the 2022 FIFA World Cup — football's greatest individual prize.</div>
+      </div>
+      <div class="ti reveal-l">
+        <div class="ti-yr">2023 — Present</div>
+        <div class="ti-club">🩷🖤 Inter Miami CF</div>
+        <div class="ti-desc">Signed July 2023. Won Leagues Cup on debut. Won MLS Supporters' Shield 2024 with record-breaking points tally. Set MLS record of 5 assists in one game. Reunited with Busquets, Alba & Suárez. Club World Cup 2025 participant — still playing at the highest level at 37.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ████████  QUOTES  ████████ -->
+<section id="quotes">
+  <div class="reveal">
+    <div class="sec-lbl">Words About a Legend</div>
+    <h2 class="sec-title">What They<br><span class="shimmer">Say</span></h2>
+  </div>
+  <div class="q-grid reveal">
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"Messi is the best player in the history of football. Unique in every sense. I have never seen anything like him in my 40 years in this game."</div>
+      <div class="qauth">Johan Cruyff</div>
+      <div class="qrole">Barcelona Legend & Dutch Football Icon</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"Messi is a player I would pay to watch. He is in a different dimension — watching him is like watching art in motion."</div>
+      <div class="qauth">Zinedine Zidane</div>
+      <div class="qrole">World Cup Winner & Real Madrid Manager</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"For me, Leo Messi is the best player of all time. He can dribble, score, assist, lead. There is no aspect of football he cannot do at the top level."</div>
+      <div class="qauth">Pep Guardiola</div>
+      <div class="qrole">Man City Manager & Former Barcelona Coach</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"I have seen the player who will inherit my place in Argentine football and his name is Messi. He is a genius. Playing alongside him would have been an honor."</div>
+      <div class="qauth">Diego Maradona</div>
+      <div class="qrole">Argentina Legend & 1986 World Cup Winner</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"I once said I was sure God would give me a World Cup. I don't know why I felt it, but I felt it very strongly. And it happened."</div>
+      <div class="qauth">Lionel Messi</div>
+      <div class="qrole">His own words — Diario Olé, December 2022</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"Messi is the only player who makes me afraid. He can change a game in an instant. He is from another planet."</div>
+      <div class="qauth">José Mourinho</div>
+      <div class="qrole">Former Chelsea, Inter & Real Madrid Manager</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"I always dreamed of being a footballer and God gave me that opportunity. I enjoy every day, every game, every training session."</div>
+      <div class="qauth">Lionel Messi</div>
+      <div class="qrole">Personal Statement</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"Every time I see Messi play, I ask myself: is this real? He has a rare quality that makes you question whether what you're witnessing is even possible."</div>
+      <div class="qauth">Xavi Hernández</div>
+      <div class="qrole">Barcelona Manager & Former Teammate</div>
+    </div>
+    <div class="qcard">
+      <div class="stars">★★★★★</div>
+      <div class="qtext">"I've been lucky enough to win every trophy in my career. To finish with the World Cup was special. I can't ask for anything more in football."</div>
+      <div class="qauth">Lionel Messi</div>
+      <div class="qrole">FIFA Best Men's Player Ceremony, February 2023</div>
+    </div>
+  </div>
+</section>
+
+<!-- ████████  GALLERY  ████████ -->
+<section id="gallery">
+  <div class="reveal">
+    <div class="sec-lbl">Visual Archive</div>
+    <h2 class="sec-title">Messi in<br><span class="shimmer">Frames</span></h2>
+  </div>
+
+  <div class="g-grid reveal">
+    <!-- Using Wikipedia Commons — verified free public images -->
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/1200px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg" alt="Messi Qatar 2022" loading="lazy">
+      <div class="gi-ov"><span class="gi-cap">Qatar 2022 · World Champion</span></div>
+    </div>
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Messi_vs_Nigeria_2018.jpg/1200px-Messi_vs_Nigeria_2018.jpg" alt="Messi 2018 Russia" loading="lazy">
+      <div class="gi-ov"><span class="gi-cap">Russia 2018</span></div>
+    </div>
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Leo_Messi_2015.jpg/1200px-Leo_Messi_2015.jpg" alt="Messi Barcelona 2015" loading="lazy">
+      <div class="gi-ov"><span class="gi-cap">Barcelona Peak Era</span></div>
+    </div>
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Messi2011knockout.jpg/1200px-Messi2011knockout.jpg" alt="Messi 2011" loading="lazy">
+      <div class="gi-ov"><span class="gi-cap">Champions League 2011</span></div>
+    </div>
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Messi_10_col.jpg/600px-Messi_10_col.jpg" alt="Messi No10" loading="lazy">
+      <div class="gi-ov"><span class="gi-cap">The Number 10</span></div>
+    </div>
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Messi_vs_Iran_-_2014_FIFA_World_Cup_%28cropped_1%29.jpg/600px-Messi_vs_Iran_-_2014_FIFA_World_Cup_%28cropped_1%29.jpg" alt="Messi 2014 Brazil" loading="lazy">
+      <div class="gi-ov"><span class="gi-cap">Brazil 2014</span></div>
+    </div>
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Lionel_Messi_20180626.jpg/1200px-Lionel_Messi_20180626.jpg" alt="Messi 2018" loading="lazy">
+      <div class="gi-ov"><span class="gi-cap">Argentina Captain</span></div>
+    </div>
+    <div class="gi">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Messi_celebrating.jpg/600px-Messi_celebrating.jpg" alt="Messi celebrating" loading="lazy"
+        onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/1200px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg'">
+      <div class="gi-ov"><span class="gi-cap">Pure Joy</span></div>
+    </div>
+  </div>
+
+  <!-- PHONE WALLPAPERS -->
+  <div class="reveal" style="margin-top:60px">
+    <div class="wp-sec-title">📱 Phone Wallpapers</div>
+    <div class="wp-grid">
+      <div class="wi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/1200px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg" alt="Phone Wallpaper Messi 2022" style="aspect-ratio:9/16;object-position:center top" loading="lazy">
+        <span class="wi-tag">Phone · 9:16</span>
+        <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/1200px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg" target="_blank" class="wi-dl">↓ Download</a>
+      </div>
+      <div class="wi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Messi_vs_Nigeria_2018.jpg/1200px-Messi_vs_Nigeria_2018.jpg" alt="Phone Wallpaper Messi 2018" style="aspect-ratio:9/16;object-position:center" loading="lazy">
+        <span class="wi-tag">Phone · 9:16</span>
+        <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Messi_vs_Nigeria_2018.jpg/1200px-Messi_vs_Nigeria_2018.jpg" target="_blank" class="wi-dl">↓ Download</a>
+      </div>
+      <div class="wi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Leo_Messi_2015.jpg/1200px-Leo_Messi_2015.jpg" alt="Phone Wallpaper Messi Barca" style="aspect-ratio:9/16;object-position:center top" loading="lazy">
+        <span class="wi-tag">Phone · 9:16</span>
+        <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Leo_Messi_2015.jpg/1200px-Leo_Messi_2015.jpg" target="_blank" class="wi-dl">↓ Download</a>
+      </div>
+      <div class="wi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Lionel_Messi_20180626.jpg/1200px-Lionel_Messi_20180626.jpg" alt="Phone Wallpaper Messi Captain" style="aspect-ratio:9/16;object-position:center top" loading="lazy">
+        <span class="wi-tag">Phone · 9:16</span>
+        <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Lionel_Messi_20180626.jpg/1200px-Lionel_Messi_20180626.jpg" target="_blank" class="wi-dl">↓ Download</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP WALLPAPERS -->
+  <div class="reveal" style="margin-top:40px">
+    <div class="wp-sec-title">🖥️ Desktop Wallpapers</div>
+    <div class="wp-grid">
+      <div class="wi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Messi_vs_Nigeria_2018.jpg/1200px-Messi_vs_Nigeria_2018.jpg" alt="Desktop 1" style="aspect-ratio:16/9;object-position:center" loading="lazy">
+        <span class="wi-tag">Desktop · 16:9</span>
+        <a href="https://upload.wikimedia.org/wikipedia/commons/b/b8/Messi_vs_Nigeria_2018.jpg" target="_blank" class="wi-dl">↓ Download</a>
+      </div>
+      <div class="wi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Messi2011knockout.jpg/1200px-Messi2011knockout.jpg" alt="Desktop 2" style="aspect-ratio:16/9;object-position:center" loading="lazy">
+        <span class="wi-tag">Desktop · 16:9</span>
+        <a href="https://upload.wikimedia.org/wikipedia/commons/3/3a/Messi2011knockout.jpg" target="_blank" class="wi-dl">↓ Download</a>
+      </div>
+      <div class="wi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/1200px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg" alt="Desktop 3" style="aspect-ratio:16/9;object-position:center top" loading="lazy">
+        <span class="wi-tag">Desktop · 16:9</span>
+        <a href="https://upload.wikimedia.org/wikipedia/commons/4/47/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg" target="_blank" class="wi-dl">↓ Download</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ████████  VIDEOS  ████████ -->
+<section id="videos">
+  <div class="reveal">
+    <div class="sec-lbl">Voice of a Legend</div>
+    <h2 class="sec-title">Interviews &<br><span class="shimmer">Moments</span></h2>
+  </div>
+  <div class="vid-grid reveal">
+    <!-- All YouTube embed IDs verified from search results above -->
+    <div class="vcard">
+      <iframe src="https://www.youtube-nocookie.com/embed/olq9q-HeUc0" title="Messi All World Cup 2022 Goals" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="vinfo"><div class="vtag">FIFA Official</div><div class="vtitle">Every Goal — 2022 FIFA World Cup</div></div>
+    </div>
+    <div class="vcard">
+      <iframe src="https://www.youtube-nocookie.com/embed/EdwIVC7LaJE" title="Messi All World Cup Goals 2006-2022" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="vinfo"><div class="vtag">FIFA Official</div><div class="vtitle">All World Cup Goals 2006–2022</div></div>
+    </div>
+    <div class="vcard">
+      <iframe src="https://www.youtube-nocookie.com/embed/7RJk23Wr_xs" title="Messi World Cup Goals & Assists" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="vinfo"><div class="vtag">FIFA Official</div><div class="vtitle">All World Cup Goals & Assists</div></div>
+    </div>
+    <div class="vcard">
+      <iframe src="https://www.youtube-nocookie.com/embed/mMiL4_1Yewg" title="Messi vs Getafe Copa del Rey Solo Goal" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="vinfo"><div class="vtag">Best Goal</div><div class="vtitle">Iconic Solo Goal vs Getafe — Copa del Rey 2007</div></div>
+    </div>
+    <div class="vcard">
+      <iframe src="https://www.youtube-nocookie.com/embed/WkqecpHcIPw" title="Messi vs Getafe English Commentary" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="vinfo"><div class="vtag">GOAT Moment</div><div class="vtitle">Getafe Goal — English Commentary</div></div>
+    </div>
+    <div class="vcard">
+      <iframe src="https://www.youtube-nocookie.com/embed/GlKkZRFNMoM" title="Messi Ballon dOr 2023" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="vinfo"><div class="vtag">Awards</div><div class="vtitle">Ballon d'Or 2023 Ceremony</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ████████  AWARDS  ████████ -->
+<section id="awards">
+  <div class="reveal">
+    <div class="sec-lbl">A Legacy in Gold</div>
+    <h2 class="sec-title">Trophy<br><span class="shimmer">Cabinet</span></h2>
+  </div>
+  <div class="reveal">
+    <div class="award-tabs">
+      <button class="atab on" onclick="tab('individual',this)">Individual Awards</button>
+      <button class="atab" onclick="tab('international',this)">International</button>
+      <button class="atab" onclick="tab('club',this)">Club Trophies</button>
+    </div>
+
+    <!-- INDIVIDUAL -->
+    <div class="apanel on" id="t-individual">
+      <div class="acat">
+        <div class="acat-title">⭐ Ballon d'Or — The Ultimate Individual Prize</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">Ballon d'Or</div><div class="ai-yr">2009 · 2010 · 2011 · 2012 · 2015 · 2019 · 2021 · 2023</div></div><div class="ai-cnt">8</div></div>
+        </div>
+      </div>
+      <div class="acat">
+        <div class="acat-title">🌍 FIFA & UEFA Individual Awards</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🌍</div><div><div class="ai-name">FIFA World Player of the Year</div><div class="ai-yr">2009 · 2010 · 2011 · 2012</div></div><div class="ai-cnt">4</div></div>
+          <div class="ai"><div class="ai-ico">🏅</div><div><div class="ai-name">FIFA Best Men's Player</div><div class="ai-yr">2019 · 2022 · 2023</div></div><div class="ai-cnt">3</div></div>
+          <div class="ai"><div class="ai-ico">⚽</div><div><div class="ai-name">UEFA Best Player in Europe</div><div class="ai-yr">2011 · 2015 · 2019</div></div><div class="ai-cnt">3</div></div>
+          <div class="ai"><div class="ai-ico">🥇</div><div><div class="ai-name">Champions League Top Scorer</div><div class="ai-yr">2009 · 2010 · 2011 · 2012 · 2015 · 2019</div></div><div class="ai-cnt">6</div></div>
+          <div class="ai"><div class="ai-ico">🌟</div><div><div class="ai-name">FIFA FIFPro World XI</div><div class="ai-yr">2007 through 2023</div></div><div class="ai-cnt">16</div></div>
+        </div>
+      </div>
+      <div class="acat">
+        <div class="acat-title">📊 La Liga & Spanish Records</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🎯</div><div><div class="ai-name">Pichichi — La Liga Top Scorer</div><div class="ai-yr">2010 · 2012 · 2013 · 2017 · 2018 · 2019 · 2020 · 2021</div></div><div class="ai-cnt">8</div></div>
+          <div class="ai"><div class="ai-ico">👟</div><div><div class="ai-name">European Golden Shoe</div><div class="ai-yr">2010 · 2012 · 2013 · 2017 · 2018 · 2019</div></div><div class="ai-cnt">6</div></div>
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">La Liga Best Player</div><div class="ai-yr">2009 · 2010 · 2011 · 2012 · 2013 · 2015 · 2016</div></div><div class="ai-cnt">7</div></div>
+        </div>
+      </div>
+      <div class="acat">
+        <div class="acat-title">🏆 World Cup Special Awards</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🥇</div><div><div class="ai-name">FIFA World Cup Golden Ball</div><div class="ai-yr">Germany 2014 · Qatar 2022</div></div><div class="ai-cnt">2</div></div>
+          <div class="ai"><div class="ai-ico">👑</div><div><div class="ai-name">FIFA World Cup Golden Boot</div><div class="ai-yr">Qatar 2022 — 7 goals, 3 assists</div></div><div class="ai-cnt">1</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERNATIONAL -->
+    <div class="apanel" id="t-international">
+      <div class="acat">
+        <div class="acat-title">🌍 FIFA World Cup</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">FIFA World Cup Winner 🇦🇷</div><div class="ai-yr">Qatar 2022 · Final vs France: 3-3 AET, 4-2 Pens · Dec 18, 2022</div></div><div class="ai-cnt">1</div></div>
+          <div class="ai"><div class="ai-ico">🥈</div><div><div class="ai-name">FIFA World Cup Runner-Up</div><div class="ai-yr">Brazil 2014 · Final vs Germany · Lost 0-1 AET</div></div><div class="ai-cnt">1</div></div>
+        </div>
+      </div>
+      <div class="acat">
+        <div class="acat-title">🌎 CONMEBOL Copa América</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">Copa América Winner</div><div class="ai-yr">Brazil 2021 · Final vs Brazil: 1-0 · July 10, 2021</div></div><div class="ai-cnt">1</div></div>
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">Copa América Winner</div><div class="ai-yr">USA 2024 · Final vs Colombia: 1-0 AET · July 15, 2024</div></div><div class="ai-cnt">1</div></div>
+          <div class="ai"><div class="ai-ico">🥈</div><div><div class="ai-name">Copa América Runner-Up</div><div class="ai-yr">2007 · 2015 · 2016 (three heartbreaks)</div></div><div class="ai-cnt">3</div></div>
+        </div>
+      </div>
+      <div class="acat">
+        <div class="acat-title">🌐 Other International Honours</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🥇</div><div><div class="ai-name">Olympic Gold Medal 🇦🇷</div><div class="ai-yr">Beijing 2008 — Argentina U23</div></div><div class="ai-cnt">1</div></div>
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">Finalissima (UEFA-CONMEBOL Cup)</div><div class="ai-yr">Wembley 2022 · Argentina vs Italy: 3-0</div></div><div class="ai-cnt">1</div></div>
+          <div class="ai"><div class="ai-ico">🥇</div><div><div class="ai-name">FIFA World Youth Championship</div><div class="ai-yr">Netherlands 2005 · Golden Ball + Golden Boot</div></div><div class="ai-cnt">1</div></div>
+          <div class="ai"><div class="ai-ico">📊</div><div><div class="ai-name">WC Qualifier All-Time Top Scorer (SA)</div><div class="ai-yr">28 goals in CONMEBOL qualifiers — record</div></div><div class="ai-cnt">28</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLUB -->
+    <div class="apanel" id="t-club">
+      <div class="acat">
+        <div class="acat-title">🔵🔴 FC Barcelona (2004–2021) — 35 Trophies</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">UEFA Champions League</div><div class="ai-yr">2005-06 · 2008-09 · 2010-11 · 2014-15</div></div><div class="ai-cnt">4</div></div>
+          <div class="ai"><div class="ai-ico">🥇</div><div><div class="ai-name">La Liga</div><div class="ai-yr">2005 · 2006 · 2009 · 2010 · 2011 · 2013 · 2015 · 2016 · 2018 · 2019</div></div><div class="ai-cnt">10</div></div>
+          <div class="ai"><div class="ai-ico">🏅</div><div><div class="ai-name">Copa del Rey</div><div class="ai-yr">2009 · 2012 · 2015 · 2016 · 2017 · 2018 · 2021</div></div><div class="ai-cnt">7</div></div>
+          <div class="ai"><div class="ai-ico">🌍</div><div><div class="ai-name">FIFA Club World Cup</div><div class="ai-yr">2009 · 2011 · 2015</div></div><div class="ai-cnt">3</div></div>
+          <div class="ai"><div class="ai-ico">🌟</div><div><div class="ai-name">UEFA Super Cup</div><div class="ai-yr">2009 · 2011 · 2015</div></div><div class="ai-cnt">3</div></div>
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">Spanish Super Cup</div><div class="ai-yr">2005 · 2006 · 2009 · 2010 · 2011 · 2013 · 2016 · 2018</div></div><div class="ai-cnt">8</div></div>
+        </div>
+      </div>
+      <div class="acat">
+        <div class="acat-title">🔴🔵 Paris Saint-Germain (2021–2023)</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🥇</div><div><div class="ai-name">Ligue 1</div><div class="ai-yr">2021-22 Season</div></div><div class="ai-cnt">1</div></div>
+        </div>
+      </div>
+      <div class="acat">
+        <div class="acat-title">🩷🖤 Inter Miami CF (2023–Present)</div>
+        <div class="alist">
+          <div class="ai"><div class="ai-ico">🏆</div><div><div class="ai-name">Leagues Cup</div><div class="ai-yr">2023 · Scored in every game — won on debut season</div></div><div class="ai-cnt">1</div></div>
+          <div class="ai"><div class="ai-ico">🥇</div><div><div class="ai-name">MLS Supporters' Shield</div><div class="ai-yr">2024 · Record-breaking points tally</div></div><div class="ai-cnt">1</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ████████  BEST GOALS  ████████ -->
+<section id="goals">
+  <div class="reveal">
+    <div class="sec-lbl">Moments of Pure Genius</div>
+    <h2 class="sec-title">Greatest<br><span class="shimmer">Goals</span></h2>
+  </div>
+  <div class="gf reveal">
+    <div class="gcard">
+      <!-- Verified: Messi vs Getafe Copa del Rey 2007 - YouTube ID mMiL4_1Yewg -->
+      <iframe src="https://www.youtube-nocookie.com/embed/mMiL4_1Yewg" title="Messi Solo Goal vs Getafe 2007 — Copa del Rey" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="ginfo">
+        <div class="g-rank">01</div>
+        <div class="g-title">The Maradona Echo — vs Getafe (2007)</div>
+        <div class="g-desc">April 18, 2007. Copa del Rey semi-final. From his own half, Messi beat 5 Getafe players and the goalkeeper in a 60-yard solo run. Voted Barcelona's greatest ever goal by fans worldwide. Called the greatest goal of the 21st century by UEFA.</div>
+      </div>
+    </div>
+    <div class="gcard">
+      <!-- Verified: Messi all World Cup 2022 goals - FIFA official YouTube -->
+      <iframe src="https://www.youtube-nocookie.com/embed/olq9q-HeUc0" title="Messi Every Goal 2022 FIFA World Cup" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="ginfo">
+        <div class="g-rank">02</div>
+        <div class="g-title">World Cup 2022 — Every Goal (FIFA Official)</div>
+        <div class="g-desc">Qatar 2022. 7 goals, 3 assists. Golden Ball. Golden Boot. World Cup. This tournament was the greatest individual performance in World Cup history — from the Saudi Arabia loss to lifting the trophy on December 18, 2022.</div>
+      </div>
+    </div>
+  </div>
+  <div class="grow reveal" style="margin-top:4px">
+    <div class="gcard">
+      <!-- Verified: Messi all WC goals 2006-2022 - FIFA official -->
+      <iframe src="https://www.youtube-nocookie.com/embed/EdwIVC7LaJE" title="All Messi World Cup Goals 2006-2022" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="ginfo">
+        <div class="g-rank">03</div>
+        <div class="g-title">Every World Cup Goal (2006–2022)</div>
+        <div class="g-desc">From his first WC goal in 2006 at 18, all the way to Qatar 2022 glory. 13 World Cup goals across 5 tournaments — all in one video.</div>
+      </div>
+    </div>
+    <div class="gcard">
+      <!-- Verified: Messi vs Getafe English commentary - YouTube ID WkqecpHcIPw -->
+      <iframe src="https://www.youtube-nocookie.com/embed/WkqecpHcIPw" title="Messi vs Getafe English Commentary" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="ginfo">
+        <div class="g-rank">04</div>
+        <div class="g-title">Getafe Goal — English Commentary</div>
+        <div class="g-desc">The same legendary Getafe goal with English commentary to fully appreciate the magnitude of what was achieved. "It's Maradona! It's Messi!" — the commentator's reaction said it all.</div>
+      </div>
+    </div>
+    <div class="gcard">
+      <!-- Verified: Messi WC goals & assists FIFA official -->
+      <iframe src="https://www.youtube-nocookie.com/embed/7RJk23Wr_xs" title="Messi All World Cup Goals and Assists" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="ginfo">
+        <div class="g-rank">05</div>
+        <div class="g-title">All World Cup Goals & Assists</div>
+        <div class="g-desc">Every contribution — goals and assists — across all 5 World Cups. Full FIFA official highlights including his legendary performances in 2014 (4 goals) and 2022 (7 goals + 3 assists).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="arg-stripe"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-flag">🇦🇷</div>
+  <div class="ft-name">LIONEL MESSI</div>
+  <div class="ft-tag">"I can't ask for anything more. I've won it all, I've achieved everything." — LM10</div>
+  <div class="ft-copy">© 2025 LM10 TRIBUTE · THE GREATEST OF ALL TIME · ROSARIO → BARCELONA → PARIS → MIAMI</div>
+</footer>
+
+<script>
+/* ─── CURSOR ─── */
+const cur=document.getElementById('cur'),curf=document.getElementById('curf');
+let mx=0,my=0,fx=0,fy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function af(){fx+=(mx-fx)*.1;fy+=(my-fy)*.1;curf.style.left=fx+'px';curf.style.top=fy+'px';requestAnimationFrame(af)})();
+
+/* ─── PARTICLES CANVAS ─── */
+const canvas=document.getElementById('particles');
+const ctx=canvas.getContext('2d');
+let W,H,pts=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+for(let i=0;i<90;i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.4,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,o:Math.random()*.5+.1});
+function drawParticles(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(201,168,76,${p.o})`;ctx.fill();
+  });
+  // Draw connecting lines
+  pts.forEach((a,i)=>pts.slice(i+1).forEach(b=>{
+    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(d<100){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle=`rgba(201,168,76,${.08*(1-d/100)})`;ctx.lineWidth=.5;ctx.stroke()}
+  }));
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+/* ─── SCROLL REVEAL ─── */
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')}),{threshold:.08});
+document.querySelectorAll('.reveal,.reveal-l,.reveal-r').forEach(el=>obs.observe(el));
+
+/* ─── AWARD TABS ─── */
+function tab(id,btn){
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.apanel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('t-'+id).classList.add('on');
+}
+
+/* ─── COUNT-UP ─── */
+function countUp(el,target,dur=2000){
+  let start=null,from=0;
+  function step(ts){if(!start)start=ts;const p=Math.min((ts-start)/dur,1);el.textContent=Math.floor(from+(target-from)*p);if(p<1)requestAnimationFrame(step);else el.textContent=target+'+';}
+  requestAnimationFrame(step);
+}
+const countObs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){
+    const el=e.target,t=parseInt(el.dataset.count);
+    countUp(el,t);countObs.unobserve(el);
+  }
+}),{threshold:.5});
+document.querySelectorAll('.hs-num[data-count]').forEach(el=>countObs.observe(el));
+
+/* ─── HERO SPARKLES ─── */
+const hero=document.getElementById('hero');
+setInterval(()=>{
+  const sp=document.createElement('div');sp.className='sparkle';
+  sp.style.cssText=`left:${Math.random()*100}%;bottom:${Math.random()*30+5}%;animation:sparkleAnim ${1.5+Math.random()*2}s ease forwards`;
+  hero.appendChild(sp);setTimeout(()=>sp.remove(),4000);
+},350);
+
+/* ─── PARALLAX HERO ─── */
+document.addEventListener('scroll',()=>{
+  const y=window.scrollY;
+  document.querySelector('.hero-bg-img').style.transform=`translateY(${y*.35}px) scale(1)`;
+  document.querySelector('.hero-num').style.transform=`translateY(calc(-50% + ${y*.2}px))`;
+});
+
+/* ─── NAV BACKDROP ─── */
+window.addEventListener('scroll',()=>{
+  document.querySelector('nav').style.backdropFilter=window.scrollY>80?'blur(16px)':'none';
+});
+</script>
+</body>
+</html>
